@@ -71,9 +71,21 @@ export function ConsultantForm({ data, onChange }: ConsultantFormProps) {
 
         {/* Cargo */}
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1">
-            Cargo / Especialidade
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-xs font-medium text-slate-300">
+              Cargo / Especialidade
+            </label>
+            {data.role !== 'Consultor de vendas' && (
+              <button
+                type="button"
+                onClick={() => updateField('role', 'Consultor de vendas')}
+                className="text-[10px] text-blue-400 hover:text-blue-300 underline underline-offset-2 transition"
+                title="Definir para o padrão"
+              >
+                Padrão: Consultor de vendas
+              </button>
+            )}
+          </div>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
               <Briefcase className="w-4 h-4" />
@@ -82,7 +94,7 @@ export function ConsultantForm({ data, onChange }: ConsultantFormProps) {
               type="text"
               value={data.role}
               onChange={(e) => updateField('role', e.target.value)}
-              placeholder="Ex: Consultor Sênior"
+              placeholder="Consultor de vendas"
               className="w-full pl-9 pr-3 py-2 text-xs bg-slate-950/80 border border-slate-800 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
             />
           </div>
@@ -101,7 +113,7 @@ export function ConsultantForm({ data, onChange }: ConsultantFormProps) {
               type="text"
               value={data.department}
               onChange={(e) => updateField('department', e.target.value)}
-              placeholder="Ex: Transformação Digital"
+              placeholder="Ex: Comercial & Vendas"
               className="w-full pl-9 pr-3 py-2 text-xs bg-slate-950/80 border border-slate-800 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
             />
           </div>
@@ -109,9 +121,21 @@ export function ConsultantForm({ data, onChange }: ConsultantFormProps) {
 
         {/* Empresa */}
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1">
-            Nome da Empresa
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-xs font-medium text-slate-300">
+              Nome da Empresa
+            </label>
+            {data.companyName !== 'Riograndense Distribuidora' && (
+              <button
+                type="button"
+                onClick={() => updateField('companyName', 'Riograndense Distribuidora')}
+                className="text-[10px] text-blue-400 hover:text-blue-300 underline underline-offset-2 transition"
+                title="Definir para o padrão"
+              >
+                Padrão: Riograndense Distribuidora
+              </button>
+            )}
+          </div>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
               <Building2 className="w-4 h-4" />
@@ -120,7 +144,7 @@ export function ConsultantForm({ data, onChange }: ConsultantFormProps) {
               type="text"
               value={data.companyName}
               onChange={(e) => updateField('companyName', e.target.value)}
-              placeholder="Ex: Apex Enterprise Solutions"
+              placeholder="Riograndense Distribuidora"
               className="w-full pl-9 pr-3 py-2 text-xs bg-slate-950/80 border border-slate-800 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
             />
           </div>

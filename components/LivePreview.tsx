@@ -110,7 +110,7 @@ export function LivePreview({ consultant, systems }: LivePreviewProps) {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs uppercase tracking-wider font-bold text-slate-400">
-                  {consultant.companyName || 'Organização Corporativa'}
+                  {consultant.companyName?.trim() || 'Riograndense Distribuidora'}
                 </span>
               </div>
               <h2 className="text-xl font-extrabold tracking-tight text-white">
@@ -146,7 +146,7 @@ export function LivePreview({ consultant, systems }: LivePreviewProps) {
                 {consultant.name || 'Nome do Consultor'}
               </h3>
               <p className="text-xs font-medium text-slate-300">
-                {consultant.role || 'Cargo / Especialidade'}{' '}
+                {consultant.role?.trim() || 'Consultor de vendas'}{' '}
                 {consultant.department && `• ${consultant.department}`}
               </p>
               {consultant.welcomeMessage && (
@@ -334,7 +334,7 @@ export function LivePreview({ consultant, systems }: LivePreviewProps) {
             <div className="flex items-center gap-1.5">
               <Headphones className="w-3.5 h-3.5 text-slate-400" />
               <span>
-                Suporte TI: {consultant.contactSupport || 'suporte.ti@empresa.com.br'}
+                Suporte TI: {consultant.contactSupport?.trim() || 'suporte.ti@riograndense.com.br | Ramal 4022'}
               </span>
             </div>
             <div className="flex items-center gap-1 text-[10px] text-slate-500">

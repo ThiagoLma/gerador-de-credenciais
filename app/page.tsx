@@ -90,12 +90,13 @@ export default function HomePage() {
     ) {
       setConsultant({
         name: '',
-        role: '',
-        department: '',
-        companyName: '',
+        role: 'Consultor de vendas',
+        department: 'Comercial & Vendas',
+        companyName: 'Riograndense Distribuidora',
         startDate: new Date().toLocaleDateString('pt-BR'),
-        welcomeMessage: '',
-        contactSupport: '',
+        welcomeMessage:
+          'Seja muito bem-vindo ao time! Este documento contém suas credenciais provisórias para os principais sistemas de trabalho.',
+        contactSupport: 'suporte.ti@riograndense.com.br | Ramal 4022',
         confidentialityNotice: true,
         accentColor: 'blue',
         hidePasswordsInPreview: false,
