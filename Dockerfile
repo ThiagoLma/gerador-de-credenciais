@@ -38,6 +38,10 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Copia arquivos estáticos públicos
 COPY --from=builder /app/public ./public
 
+# Configura pasta de dados persistentes dos templates com permissão de escrita
+RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data
+COPY --from=builder --chown=nextjs:nodejs /app/data ./data
+
 # Configura permissões para o cache do Next.js
 RUN mkdir .next && chown nextjs:nodejs .next
 

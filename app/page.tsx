@@ -33,31 +33,25 @@ export default function HomePage() {
   const [exportStatus, setExportStatus] = useState<string>('');
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
 
-  // Carrega templates personalizados do localStorage se existirem
+  // Carrega templates definitivos do servidor (compartilhados entre todas as máquinas)
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('onboarding_quick_templates');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setTemplates(parsed);
+    fetch('/api/templates')
+      .then((res) => {
+        if (!res.ok) throw new Error('Falha ao obter templates');
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setTemplates(data);
         }
-      }
-    } catch (e) {
-      console.warn('Erro ao carregar templates salvos:', e);
-    }
+      })
+      .catch((err) => {
+        console.warn('Usando templates locais em memória:', err);
+      });
   }, []);
 
   const handleSaveTemplates = (updated: QuickTemplate[]) => {
     setTemplates(updated);
-    try {
-      localStorage.setItem(
-        'onboarding_quick_templates',
-        JSON.stringify(updated)
-      );
-    } catch (e) {
-      console.warn('Erro ao salvar templates no localStorage:', e);
-    }
   };
 
   const handleSelectTemplate = (tmpl: QuickTemplate) => {

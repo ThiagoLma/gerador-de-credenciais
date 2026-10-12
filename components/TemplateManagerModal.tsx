@@ -10,7 +10,8 @@ import {
   Save,
   Check,
   Settings,
-  Globe,
+  Loader2,
+  Server,
 } from 'lucide-react';
 import { QuickTemplate } from '@/lib/types';
 import { QUICK_TEMPLATES } from '@/lib/templates';
@@ -47,13 +48,16 @@ export function TemplateManagerModal({
 }: TemplateManagerModalProps) {
   const [localTemplates, setLocalTemplates] = useState<QuickTemplate[]>(templates);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isSavedNotice, setIsSavedNotice] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Sincroniza quando abrir
   React.useEffect(() => {
     if (isOpen) {
       setLocalTemplates(templates);
       setEditingId(null);
+      setErrorMessage(null);
     }
   }, [isOpen, templates]);
 
@@ -85,26 +89,59 @@ export function TemplateManagerModal({
     if (editingId === id) setEditingId(null);
   };
 
-  const handleResetToDefault = () => {
+  const handleResetToDefault = async () => {
     if (
       window.confirm(
-        'Tem certeza que deseja restaurar a lista padrão de templates?'
+        'Tem certeza que deseja restaurar a lista padrão original de templates no servidor?'
       )
     ) {
-      setLocalTemplates(QUICK_TEMPLATES);
-      onSaveTemplates(QUICK_TEMPLATES);
-      setIsSavedNotice(true);
-      setTimeout(() => setIsSavedNotice(false), 2000);
+      try {
+        setIsSaving(true);
+        await fetch('/api/templates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(QUICK_TEMPLATES),
+        });
+        setLocalTemplates(QUICK_TEMPLATES);
+        onSaveTemplates(QUICK_TEMPLATES);
+        setIsSavedNotice(true);
+        setTimeout(() => setIsSavedNotice(false), 2000);
+      } catch (e) {
+        setErrorMessage('Erro ao restaurar padrões.');
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
-  const handleSaveAll = () => {
-    onSaveTemplates(localTemplates);
-    setIsSavedNotice(true);
-    setTimeout(() => {
-      setIsSavedNotice(false);
-      onClose();
-    }, 800);
+  const handleSaveAll = async () => {
+    try {
+      setIsSaving(true);
+      setErrorMessage(null);
+
+      // Salva definitivamente no servidor/disco via API
+      const res = await fetch('/api/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(localTemplates),
+      });
+
+      if (!res.ok) {
+        throw new Error('Falha ao gravar no servidor');
+      }
+
+      onSaveTemplates(localTemplates);
+      setIsSavedNotice(true);
+      setTimeout(() => {
+        setIsSavedNotice(false);
+        onClose();
+      }, 1000);
+    } catch (err) {
+      console.error(err);
+      setErrorMessage('Erro ao salvar no servidor. Verifique o log.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -117,11 +154,17 @@ export function TemplateManagerModal({
               <Settings className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">
-                Gerenciador de Templates Rápidos
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold text-white">
+                  Gerenciador de Templates Rápidos
+                </h3>
+                <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                  <Server className="w-2.5 h-2.5" />
+                  Salvo no Servidor
+                </span>
+              </div>
               <p className="text-xs text-slate-400">
-                Personalize os sistemas sugeridos com os links e padrões da sua empresa
+                As alterações feitas aqui são salvas permanentemente e aparecem para todas as máquinas
               </p>
             </div>
           </div>
@@ -133,6 +176,12 @@ export function TemplateManagerModal({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {errorMessage && (
+          <div className="mx-5 mt-3 p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+            {errorMessage}
+          </div>
+        )}
 
         {/* Lista de Templates com Edição */}
         <div className="p-5 overflow-y-auto space-y-3.5 flex-1">
@@ -324,36 +373,44 @@ export function TemplateManagerModal({
         <div className="flex items-center justify-between p-4 border-t border-slate-800 bg-slate-950/60">
           <button
             type="button"
+            disabled={isSaving}
             onClick={handleResetToDefault}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 transition disabled:opacity-50"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            Restaurar Padrões
+            Restaurar Padrões Originais
           </button>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
+              disabled={isSaving}
               onClick={onClose}
-              className="px-3.5 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition"
+              className="px-3.5 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition disabled:opacity-50"
             >
               Cancelar
             </button>
 
             <button
               type="button"
+              disabled={isSaving}
               onClick={handleSaveAll}
-              className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm transition"
+              className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm transition disabled:opacity-50"
             >
-              {isSavedNotice ? (
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Salvando no Servidor...
+                </>
+              ) : isSavedNotice ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-white" />
-                  Salvo!
+                  Salvo Definitivamente!
                 </>
               ) : (
                 <>
                   <Save className="w-3.5 h-3.5" />
-                  Salvar Alterações
+                  Salvar Definitivamente
                 </>
               )}
             </button>
