@@ -112,9 +112,6 @@ export function LivePreview({ consultant, systems }: LivePreviewProps) {
                 <span className="text-xs uppercase tracking-wider font-bold text-slate-400">
                   {consultant.companyName || 'Organização Corporativa'}
                 </span>
-                <span className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full border ${styles.badgeBg}`}>
-                  Onboarding Pass
-                </span>
               </div>
               <h2 className="text-xl font-extrabold tracking-tight text-white">
                 Credenciais de Acesso
