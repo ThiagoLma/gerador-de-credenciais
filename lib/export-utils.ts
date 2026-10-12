@@ -16,26 +16,37 @@ export async function exportElementToPDF(
     throw new Error('Elemento de visualização não encontrado.');
   }
 
-  options.onProgress?.('Renderizando documento em alta resolução...');
-
-  // Adiciona classe temporária para otimizar renderização de exportação se necessário
-  const originalScrollTop = window.scrollY;
+  options.onProgress?.('Renderizando documento...');
 
   try {
     const canvas = await html2canvas(element, {
-      scale: 2, // Resolução Retina nítida
+      scale: 2, // Resolução Retina de alta nitidez
       useCORS: true,
-      logging: false,
+      allowTaint: false,
       backgroundColor: '#090d16',
-      windowWidth: element.scrollWidth,
-      windowHeight: element.scrollHeight,
+      logging: false,
+      onclone: (clonedDoc) => {
+        const clonedElement = clonedDoc.getElementById(elementId);
+        if (clonedElement) {
+          // Garante dimensões ideais de A4 mesmo se o preview estiver em tela pequena ou oculto
+          clonedElement.style.display = 'block';
+          clonedElement.style.visibility = 'visible';
+          clonedElement.style.opacity = '1';
+          clonedElement.style.position = 'relative';
+          clonedElement.style.left = '0';
+          clonedElement.style.top = '0';
+          clonedElement.style.width = '780px';
+          clonedElement.style.maxWidth = '780px';
+          clonedElement.style.margin = '0 auto';
+        }
+      },
     });
 
-    options.onProgress?.('Gerando arquivo PDF...');
+    options.onProgress?.('Formatando PDF...');
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const imgData = canvas.toDataURL('image/png', 1.0);
     const pdf = new jsPDF({
-      orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+      orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
     });
@@ -43,25 +54,26 @@ export async function exportElementToPDF(
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const imgWidth = pageWidth - 20; // margem de 10mm em cada lado
+    const margin = 12; // 12mm de margem elegante
+    const imgWidth = pageWidth - margin * 2;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    if (imgHeight <= pageHeight - 20) {
-      // Cabe perfeitamente em 1 página
+    if (imgHeight <= pageHeight - margin * 2) {
+      // Cabe perfeitamente centralizado em 1 página
       const topMargin = (pageHeight - imgHeight) / 2;
-      pdf.addImage(imgData, 'JPEG', 10, topMargin, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'PNG', margin, topMargin, imgWidth, imgHeight);
     } else {
-      // Suporte para páginas longas
+      // Suporte para documentos com mais páginas
       let heightLeft = imgHeight;
-      let position = 10;
+      let position = margin;
 
-      pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
 
       while (heightLeft > 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
       }
     }
@@ -72,15 +84,16 @@ export async function exportElementToPDF(
 
     pdf.save(`Credenciais_Onboarding_${sanitizedName}.pdf`);
 
-    // Efeito de celebração
+    // Feedback festivo de sucesso
     confetti({
-      particleCount: 80,
+      particleCount: 70,
       spread: 60,
       origin: { y: 0.7 },
       colors: ['#3b82f6', '#a855f7', '#06b6d4', '#ffffff'],
     });
-  } finally {
-    window.scrollTo(0, originalScrollTop);
+  } catch (err) {
+    console.error('Falha detalhada ao gerar PDF:', err);
+    throw err;
   }
 }
 
@@ -93,30 +106,48 @@ export async function exportElementToImage(
     throw new Error('Elemento de visualização não encontrado.');
   }
 
-  options.onProgress?.('Gerando imagem de alta fidelidade...');
+  options.onProgress?.('Gerando imagem...');
 
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    useCORS: true,
-    logging: false,
-    backgroundColor: '#090d16',
-    windowWidth: element.scrollWidth,
-    windowHeight: element.scrollHeight,
-  });
+  try {
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#090d16',
+      logging: false,
+      onclone: (clonedDoc) => {
+        const clonedElement = clonedDoc.getElementById(elementId);
+        if (clonedElement) {
+          clonedElement.style.display = 'block';
+          clonedElement.style.visibility = 'visible';
+          clonedElement.style.opacity = '1';
+          clonedElement.style.position = 'relative';
+          clonedElement.style.left = '0';
+          clonedElement.style.top = '0';
+          clonedElement.style.width = '780px';
+          clonedElement.style.maxWidth = '780px';
+          clonedElement.style.margin = '0 auto';
+        }
+      },
+    });
 
-  const image = canvas.toDataURL('image/png', 1.0);
-  const link = document.createElement('a');
-  const sanitizedName = (options.consultantName || 'Consultor')
-    .trim()
-    .replace(/[^a-zA-Z0-9À-ž]/g, '_');
+    const image = canvas.toDataURL('image/png', 1.0);
+    const link = document.createElement('a');
+    const sanitizedName = (options.consultantName || 'Consultor')
+      .trim()
+      .replace(/[^a-zA-Z0-9À-ž]/g, '_');
 
-  link.download = `Credenciais_Onboarding_${sanitizedName}.png`;
-  link.href = image;
-  link.click();
+    link.download = `Credenciais_Onboarding_${sanitizedName}.png`;
+    link.href = image;
+    link.click();
 
-  confetti({
-    particleCount: 50,
-    spread: 50,
-    origin: { y: 0.7 },
-  });
+    confetti({
+      particleCount: 50,
+      spread: 50,
+      origin: { y: 0.7 },
+    });
+  } catch (err) {
+    console.error('Falha detalhada ao gerar imagem:', err);
+    throw err;
+  }
 }

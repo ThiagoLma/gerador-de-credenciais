@@ -100,8 +100,8 @@ export function LivePreview({ consultant, systems }: LivePreviewProps) {
         style={{ minHeight: '680px' }}
       >
         {/* Marca d'água de Fundo sutil */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-cyan-500/5 to-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div data-html2canvas-ignore="true" className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div data-html2canvas-ignore="true" className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-cyan-500/5 to-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* 1. Header do Documento VIP */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-800/80 gap-4 relative z-10">

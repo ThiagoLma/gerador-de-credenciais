@@ -32,7 +32,7 @@ export function BrandLogo({ className = '', size = 'md' }: BrandLogoProps) {
           src="/logo.png"
           alt="Logo Onboarding Pass"
           onError={() => setHasError(true)}
-          className="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(59,130,246,0.5)]"
+          className="w-full h-full object-contain"
         />
       </div>
     );

@@ -116,9 +116,9 @@ export default function HomePage() {
         consultantName: consultant.name,
         onProgress: (status) => setExportStatus(status),
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro na exportação de PDF:', error);
-      alert('Houve uma falha ao gerar o PDF. Verifique o console.');
+      alert(`Falha ao gerar o PDF: ${error?.message || 'Verifique o console'}`);
     } finally {
       setIsExporting(false);
       setExportStatus('');
@@ -132,9 +132,9 @@ export default function HomePage() {
         consultantName: consultant.name,
         onProgress: (status) => setExportStatus(status),
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro na exportação de imagem:', error);
-      alert('Houve uma falha ao gerar a imagem. Verifique o console.');
+      alert(`Falha ao gerar a imagem: ${error?.message || 'Verifique o console'}`);
     } finally {
       setIsExporting(false);
       setExportStatus('');
