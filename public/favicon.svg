@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="50%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#c084fc" stop-opacity="0.3" />
+    </linearGradient>
+    <linearGradient id="keyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#818cf8" />
+    </linearGradient>
+  </defs>
+
+  <!-- Fundo Escuro do Ícone com Cantos Arredondados -->
+  <rect width="100" height="100" rx="22" fill="#090d16" />
+
+  <!-- Escudo Base com Gradiente Elétrico -->
+  <path d="M 50 14 
+           C 66 19, 81 20, 84 32
+           C 87 54, 73 77, 50 88
+           C 27 77, 13 54, 16 32
+           C 19 20, 34 19, 50 14 Z" 
+        fill="url(#shieldGrad)" />
+
+  <!-- Borda Interna / Miolo -->
+  <path d="M 50 19 
+           C 62 23, 75 24, 78 34
+           C 80 50, 68 70, 50 80
+           C 32 70, 20 50, 22 34
+           C 25 24, 38 23, 50 19 Z" 
+        fill="#0b1120" 
+        stroke="url(#glowGrad)" 
+        stroke-width="1.8" />
+
+  <!-- Chave Criptográfica Central -->
+  <circle cx="50" cy="38" r="9.5" fill="none" stroke="url(#keyGrad)" stroke-width="4" />
+  <circle cx="50" cy="38" r="3.5" fill="#a855f7" />
+  
+  <path d="M 47.5 45 L 52.5 45 L 51 68 L 49 68 Z" fill="url(#keyGrad)" />
+  <rect x="51" y="56" width="6.5" height="3" rx="1.5" fill="url(#keyGrad)" />
+  <rect x="51" y="63" width="7.5" height="3" rx="1.5" fill="url(#keyGrad)" />
+
+  <!-- Pontos de Conexão Neon -->
+  <circle cx="33" cy="36" r="2.2" fill="#06b6d4" />
+  <circle cx="67" cy="36" r="2.2" fill="#06b6d4" />
+</svg>

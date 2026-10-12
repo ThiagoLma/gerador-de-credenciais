@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { ConsultantData, SystemCredential } from '@/lib/types';
 import { SystemIcon } from './SystemIcon';
+import { BrandLogo } from './BrandLogo';
 
 interface LivePreviewProps {
   consultant: ConsultantData;
@@ -105,11 +106,7 @@ export function LivePreview({ consultant, systems }: LivePreviewProps) {
         {/* 1. Header do Documento VIP */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-slate-800/80 gap-4 relative z-10">
           <div className="flex items-center gap-3">
-            <div
-              className={`w-12 h-12 rounded-xl bg-gradient-to-tr ${styles.gradient} flex items-center justify-center shadow-md`}
-            >
-              <ShieldCheck className="w-6 h-6 text-white" />
-            </div>
+            <BrandLogo size="lg" />
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs uppercase tracking-wider font-bold text-slate-400">

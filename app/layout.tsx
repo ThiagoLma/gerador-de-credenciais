@@ -6,7 +6,12 @@ export const metadata: Metadata = {
   description:
     'Aplicação moderna e minimalista para gerar documentos de boas-vindas e credenciais de acesso para novos consultores.',
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/icon.png', type: 'image/png' },
+      { url: '/favicon.ico' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/icon.png',
   },
 };
 
