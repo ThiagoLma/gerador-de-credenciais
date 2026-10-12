@@ -8,6 +8,8 @@ import {
   RotateCcw,
   Sparkles,
   Loader2,
+  PanelRightClose,
+  PanelRightOpen,
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -18,6 +20,8 @@ interface HeaderProps {
   isExporting: boolean;
   exportStatus: string;
   systemsCount: number;
+  showLivePreview: boolean;
+  onToggleLivePreview: () => void;
 }
 
 export function Header({
@@ -28,6 +32,8 @@ export function Header({
   isExporting,
   exportStatus,
   systemsCount,
+  showLivePreview,
+  onToggleLivePreview,
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-background/80 backdrop-blur-md px-4 lg:px-8 py-3.5 transition-all">
@@ -58,11 +64,34 @@ export function Header({
         </div>
 
         {/* Ações e Controles */}
-        <div className="flex items-center gap-2.5 w-full md:w-auto justify-end flex-wrap">
-          <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-400 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800">
-            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            Client-Side Privado (0 dados enviados a servidores)
-          </div>
+        <div className="flex items-center gap-2 w-full md:w-auto justify-end flex-wrap">
+          {/* Botão de Alternar Live Preview (Ocultar / Exibir) */}
+          <button
+            type="button"
+            onClick={onToggleLivePreview}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition shadow-sm ${
+              showLivePreview
+                ? 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 border-slate-700'
+                : 'bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border-blue-500/40 ring-1 ring-blue-500/30'
+            }`}
+            title={
+              showLivePreview
+                ? 'Ocultar Live Preview para expandir a área de formulário'
+                : 'Exibir Live Preview em tempo real'
+            }
+          >
+            {showLivePreview ? (
+              <>
+                <PanelRightClose className="w-3.5 h-3.5 text-slate-400" />
+                <span className="hidden sm:inline">Ocultar Preview</span>
+              </>
+            ) : (
+              <>
+                <PanelRightOpen className="w-3.5 h-3.5 text-blue-400" />
+                <span className="hidden sm:inline">Exibir Preview</span>
+              </>
+            )}
+          </button>
 
           <button
             onClick={onLoadDemo}
@@ -71,7 +100,7 @@ export function Header({
             title="Preencher com dados de exemplo"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden sm:inline">Exemplo Demo</span>
+            <span className="hidden sm:inline">Demo</span>
           </button>
 
           <button
@@ -87,17 +116,17 @@ export function Header({
           <button
             onClick={onExportImage}
             disabled={isExporting}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition shadow-sm disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-200 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition shadow-sm disabled:opacity-50"
             title="Exportar Live Preview como imagem PNG"
           >
             <ImageIcon className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Imagem PNG</span>
+            <span>PNG</span>
           </button>
 
           <button
             onClick={onExportPDF}
             disabled={isExporting}
-            className="flex items-center gap-2 px-4 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 active:scale-95 rounded-lg shadow-glow-blue transition disabled:opacity-50"
+            className="flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 active:scale-95 rounded-lg shadow-glow-blue transition disabled:opacity-50"
             title="Exportar Live Preview como PDF"
           >
             {isExporting ? (
@@ -108,7 +137,7 @@ export function Header({
             ) : (
               <>
                 <FileDown className="w-4 h-4" />
-                <span>Exportar PDF</span>
+                <span>PDF</span>
               </>
             )}
           </button>

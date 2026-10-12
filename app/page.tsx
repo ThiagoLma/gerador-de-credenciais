@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { QuickTemplatesBar } from '@/components/QuickTemplatesBar';
 import { ConsultantForm } from '@/components/ConsultantForm';
 import { SystemCardForm } from '@/components/SystemCardForm';
 import { LivePreview } from '@/components/LivePreview';
+import { TemplateManagerModal } from '@/components/TemplateManagerModal';
 import {
   ConsultantData,
   QuickTemplate,
@@ -14,19 +15,50 @@ import {
 import {
   INITIAL_CONSULTANT_DATA,
   INITIAL_SYSTEMS,
+  QUICK_TEMPLATES,
   generateSecurePassword,
 } from '@/lib/templates';
 import { exportElementToImage, exportElementToPDF } from '@/lib/export-utils';
-import { Eye, Edit3, Sparkles } from 'lucide-react';
+import { Eye, Edit3, Sparkles, PanelRightOpen } from 'lucide-react';
 
 export default function HomePage() {
   const [consultant, setConsultant] = useState<ConsultantData>(
     INITIAL_CONSULTANT_DATA
   );
   const [systems, setSystems] = useState<SystemCredential[]>(INITIAL_SYSTEMS);
+  const [templates, setTemplates] = useState<QuickTemplate[]>(QUICK_TEMPLATES);
+  const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState<boolean>(false);
+  const [showLivePreview, setShowLivePreview] = useState<boolean>(true);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [exportStatus, setExportStatus] = useState<string>('');
   const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
+
+  // Carrega templates personalizados do localStorage se existirem
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('onboarding_quick_templates');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTemplates(parsed);
+        }
+      }
+    } catch (e) {
+      console.warn('Erro ao carregar templates salvos:', e);
+    }
+  }, []);
+
+  const handleSaveTemplates = (updated: QuickTemplate[]) => {
+    setTemplates(updated);
+    try {
+      localStorage.setItem(
+        'onboarding_quick_templates',
+        JSON.stringify(updated)
+      );
+    } catch (e) {
+      console.warn('Erro ao salvar templates no localStorage:', e);
+    }
+  };
 
   const handleSelectTemplate = (tmpl: QuickTemplate) => {
     const newSystem: SystemCredential = {
@@ -117,7 +149,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header Fixo / Sticky */}
+      {/* Header Fixo com Controles */}
       <Header
         onExportPDF={handleExportPDF}
         onExportImage={handleExportImage}
@@ -126,6 +158,16 @@ export default function HomePage() {
         isExporting={isExporting}
         exportStatus={exportStatus}
         systemsCount={systems.length}
+        showLivePreview={showLivePreview}
+        onToggleLivePreview={() => setShowLivePreview((prev) => !prev)}
+      />
+
+      {/* Modal de Gerenciamento e Edição de Templates */}
+      <TemplateManagerModal
+        isOpen={isTemplateManagerOpen}
+        onClose={() => setIsTemplateManagerOpen(false)}
+        templates={templates}
+        onSaveTemplates={handleSaveTemplates}
       />
 
       {/* Seletor Mobile de Abas (Editar vs Preview) */}
@@ -158,16 +200,45 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Conteúdo Principal - Layout 2 Colunas */}
+      {/* Conteúdo Principal */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Coluna Esquerda: Edição (5 cols no desktop) */}
+        {/* Aviso de Modo Foco quando Preview estiver ocultado */}
+        {!showLivePreview && (
+          <div className="mb-6 p-3.5 rounded-xl bg-blue-950/40 border border-blue-500/30 flex items-center justify-between text-xs text-blue-200">
+            <div className="flex items-center gap-2">
+              <PanelRightOpen className="w-4 h-4 text-blue-400" />
+              <span>
+                <strong>Modo Foco Ativo:</strong> O Live Preview está oculto para maximizar o espaço de configuração do documento. A exportação para PDF continua funcionando normalmente.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowLivePreview(true)}
+              className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition shrink-0"
+            >
+              Restaurar Preview
+            </button>
+          </div>
+        )}
+
+        <div
+          className={`grid grid-cols-1 ${
+            showLivePreview ? 'lg:grid-cols-12 gap-8' : 'gap-6'
+          } items-start`}
+        >
+          {/* Coluna de Edição: 6 colunas quando com preview, 12 colunas maximizada quando oculto */}
           <div
-            className={`lg:col-span-6 space-y-6 ${
-              mobileView === 'preview' ? 'hidden lg:block' : 'block'
-            }`}
+            className={`space-y-6 ${
+              showLivePreview
+                ? 'lg:col-span-6'
+                : 'lg:col-span-12 max-w-4xl mx-auto w-full'
+            } ${mobileView === 'preview' ? 'hidden lg:block' : 'block'}`}
           >
-            <QuickTemplatesBar onSelectTemplate={handleSelectTemplate} />
+            <QuickTemplatesBar
+              templates={templates}
+              onSelectTemplate={handleSelectTemplate}
+              onOpenManager={() => setIsTemplateManagerOpen(true)}
+            />
             <ConsultantForm data={consultant} onChange={setConsultant} />
             <SystemCardForm
               systems={systems}
@@ -176,21 +247,28 @@ export default function HomePage() {
             />
           </div>
 
-          {/* Coluna Direita: Live Preview Fixo/Sticky (6 cols no desktop) */}
+          {/* Coluna de Live Preview:
+              - Se showLivePreview === true: exibe na coluna direita (sticky)
+              - Se showLivePreview === false: posiciona off-screen para manter a capacidade de exportação para PDF/PNG funcionando sem falhas
+          */}
           <div
-            className={`lg:col-span-6 sticky top-20 space-y-4 ${
-              mobileView === 'editor' ? 'hidden lg:block' : 'block'
-            }`}
+            className={`${
+              showLivePreview
+                ? 'lg:col-span-6 sticky top-20 space-y-4'
+                : 'fixed -left-[9999px] top-0 w-[850px] pointer-events-none opacity-0'
+            } ${mobileView === 'editor' && showLivePreview ? 'hidden lg:block' : 'block'}`}
           >
-            <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-              <span className="flex items-center gap-1.5 font-medium text-slate-300">
-                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                Live Preview em Tempo Real (Dark Mode)
-              </span>
-              <span className="text-[11px] text-slate-500">
-                Visual exato da exportação PDF
-              </span>
-            </div>
+            {showLivePreview && (
+              <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+                <span className="flex items-center gap-1.5 font-medium text-slate-300">
+                  <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+                  Live Preview em Tempo Real (Dark Mode)
+                </span>
+                <span className="text-[11px] text-slate-500">
+                  Visual exato da exportação PDF
+                </span>
+              </div>
+            )}
 
             <LivePreview consultant={consultant} systems={systems} />
           </div>

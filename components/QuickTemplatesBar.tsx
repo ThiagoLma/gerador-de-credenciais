@@ -1,16 +1,21 @@
 'use client';
 
 import React from 'react';
-import { Plus, Zap } from 'lucide-react';
-import { QUICK_TEMPLATES } from '@/lib/templates';
+import { Plus, Zap, SlidersHorizontal } from 'lucide-react';
 import { QuickTemplate } from '@/lib/types';
 import { SystemIcon } from './SystemIcon';
 
 interface QuickTemplatesBarProps {
+  templates: QuickTemplate[];
   onSelectTemplate: (template: QuickTemplate) => void;
+  onOpenManager: () => void;
 }
 
-export function QuickTemplatesBar({ onSelectTemplate }: QuickTemplatesBarProps) {
+export function QuickTemplatesBar({
+  templates,
+  onSelectTemplate,
+  onOpenManager,
+}: QuickTemplatesBarProps) {
   return (
     <div className="bg-slate-900/60 rounded-xl border border-slate-800 p-4">
       <div className="flex items-center justify-between mb-3">
@@ -20,13 +25,20 @@ export function QuickTemplatesBar({ onSelectTemplate }: QuickTemplatesBarProps) 
             Templates Rápidos (1-Clique)
           </h3>
         </div>
-        <span className="text-[11px] text-slate-500">
-          Adiciona o sistema com links e senha forte automática
-        </span>
+
+        <button
+          type="button"
+          onClick={onOpenManager}
+          className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 rounded-lg border border-slate-700/80 transition"
+          title="Editar ou adicionar novos templates de sistemas"
+        >
+          <SlidersHorizontal className="w-3 h-3 text-blue-400" />
+          <span>Editar Templates</span>
+        </button>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        {QUICK_TEMPLATES.map((tmpl) => (
+        {templates.map((tmpl) => (
           <button
             key={tmpl.id}
             type="button"
