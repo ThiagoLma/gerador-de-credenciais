@@ -16,11 +16,11 @@ export async function exportElementToPDF(
     throw new Error('Elemento de visualização não encontrado.');
   }
 
-  options.onProgress?.('Renderizando documento...');
+  options.onProgress?.('Renderizando documento sem cortes...');
 
   try {
     const canvas = await html2canvas(element, {
-      scale: 2, // Resolução Retina de alta nitidez
+      scale: 2.2, // Resolução de alta fidelidade
       useCORS: true,
       allowTaint: false,
       backgroundColor: '#090d16',
@@ -28,21 +28,38 @@ export async function exportElementToPDF(
       onclone: (clonedDoc) => {
         const clonedElement = clonedDoc.getElementById(elementId);
         if (clonedElement) {
-          // Garante dimensões ideais de A4 mesmo se o preview estiver em tela pequena ou oculto
+          // Garante dimensões ideais de A4 com fundo escuro contínuo
           clonedElement.style.display = 'block';
           clonedElement.style.visibility = 'visible';
           clonedElement.style.opacity = '1';
           clonedElement.style.position = 'relative';
           clonedElement.style.left = '0';
           clonedElement.style.top = '0';
-          clonedElement.style.width = '780px';
-          clonedElement.style.maxWidth = '780px';
-          clonedElement.style.margin = '0 auto';
+          clonedElement.style.width = '840px';
+          clonedElement.style.maxWidth = '840px';
+          clonedElement.style.minHeight = '1120px';
+          clonedElement.style.margin = '0';
+          clonedElement.style.borderRadius = '0px';
+          clonedElement.style.border = 'none';
+
+          // Previne 100% de cortes verticais em fontes no html2canvas
+          const allTextNodes = clonedElement.querySelectorAll(
+            'h1, h2, h3, h4, h5, h6, span, p, div, a'
+          );
+          allTextNodes.forEach((node) => {
+            const htmlNode = node as HTMLElement;
+            if (htmlNode.style) {
+              htmlNode.style.overflow = 'visible';
+              htmlNode.style.textOverflow = 'clip';
+              htmlNode.style.lineHeight = '1.45';
+              htmlNode.style.paddingBottom = '3px';
+            }
+          });
         }
       },
     });
 
-    options.onProgress?.('Formatando PDF...');
+    options.onProgress?.('Gerando PDF página inteira...');
 
     const imgData = canvas.toDataURL('image/png', 1.0);
     const pdf = new jsPDF({
@@ -51,29 +68,35 @@ export async function exportElementToPDF(
       format: 'a4',
     });
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+    const pageWidth = pdf.internal.pageSize.getWidth(); // 210mm
+    const pageHeight = pdf.internal.pageSize.getHeight(); // 297mm
 
-    const margin = 12; // 12mm de margem elegante
-    const imgWidth = pageWidth - margin * 2;
+    // 1. Pinta a folha A4 inteira com o fundo escuro corporativo (#090d16)
+    // Isso ELIMINA qualquer margem ou borda branca ao redor do documento!
+    pdf.setFillColor(9, 13, 22);
+    pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+
+    // 2. Preenche 100% da largura da página (Full Bleed)
+    const imgWidth = pageWidth;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    if (imgHeight <= pageHeight - margin * 2) {
-      // Cabe perfeitamente centralizado em 1 página
-      const topMargin = (pageHeight - imgHeight) / 2;
-      pdf.addImage(imgData, 'PNG', margin, topMargin, imgWidth, imgHeight);
+    if (imgHeight <= pageHeight) {
+      // Se couber em 1 página, preenche de ponta a ponta
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
     } else {
-      // Suporte para documentos com mais páginas
+      // Suporte para documentos que ultrapassam 1 página
       let heightLeft = imgHeight;
-      let position = margin;
+      let position = 0;
 
-      pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
 
       while (heightLeft > 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', margin, position, imgWidth, imgHeight);
+        pdf.setFillColor(9, 13, 22);
+        pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
       }
     }
@@ -84,7 +107,6 @@ export async function exportElementToPDF(
 
     pdf.save(`Credenciais_Onboarding_${sanitizedName}.pdf`);
 
-    // Feedback festivo de sucesso
     confetti({
       particleCount: 70,
       spread: 60,
@@ -110,7 +132,7 @@ export async function exportElementToImage(
 
   try {
     const canvas = await html2canvas(element, {
-      scale: 2,
+      scale: 2.2,
       useCORS: true,
       allowTaint: false,
       backgroundColor: '#090d16',
@@ -124,9 +146,22 @@ export async function exportElementToImage(
           clonedElement.style.position = 'relative';
           clonedElement.style.left = '0';
           clonedElement.style.top = '0';
-          clonedElement.style.width = '780px';
-          clonedElement.style.maxWidth = '780px';
+          clonedElement.style.width = '840px';
+          clonedElement.style.maxWidth = '840px';
           clonedElement.style.margin = '0 auto';
+
+          const allTextNodes = clonedElement.querySelectorAll(
+            'h1, h2, h3, h4, h5, h6, span, p, div, a'
+          );
+          allTextNodes.forEach((node) => {
+            const htmlNode = node as HTMLElement;
+            if (htmlNode.style) {
+              htmlNode.style.overflow = 'visible';
+              htmlNode.style.textOverflow = 'clip';
+              htmlNode.style.lineHeight = '1.45';
+              htmlNode.style.paddingBottom = '3px';
+            }
+          });
         }
       },
     });

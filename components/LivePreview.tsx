@@ -194,16 +194,16 @@ export function LivePreview({ consultant, systems }: LivePreviewProps) {
                     {/* Topo do Card de Sistema */}
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-2.5">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <div className="p-2 rounded-lg bg-slate-800 text-slate-300 group-hover:text-blue-400 transition">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="p-2 rounded-lg bg-slate-800 text-slate-300 group-hover:text-blue-400 transition shrink-0">
                             <SystemIcon name={sys.iconName} className="w-4 h-4" />
                           </div>
                           <div className="min-w-0">
-                            <h5 className="text-xs font-bold text-white truncate">
+                            <h5 className="text-sm font-bold text-white leading-normal py-0.5">
                               {sys.name}
                             </h5>
                             {sys.category && (
-                              <span className="text-[10px] uppercase font-medium text-slate-400">
+                              <span className="text-[10px] uppercase font-semibold text-slate-400">
                                 {sys.category}
                               </span>
                             )}
@@ -219,7 +219,7 @@ export function LivePreview({ consultant, systems }: LivePreviewProps) {
                             }
                             target="_blank"
                             rel="noreferrer"
-                            className="p-1 rounded-md text-slate-400 hover:text-blue-400 hover:bg-slate-800 transition shrink-0"
+                            className="p-1.5 rounded-md text-slate-400 hover:text-blue-400 hover:bg-slate-800 transition shrink-0"
                             title="Acessar link do sistema"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
@@ -228,12 +228,12 @@ export function LivePreview({ consultant, systems }: LivePreviewProps) {
                       </div>
 
                       {/* Linha de Usuário */}
-                      <div className="space-y-1.5 mb-2.5">
-                        <div className="flex items-center justify-between text-xs bg-slate-950/70 p-2 rounded-lg border border-slate-800/80">
-                          <div className="flex items-center gap-1.5 text-slate-400 truncate mr-2">
+                      <div className="space-y-2 mb-2.5">
+                        <div className="flex items-center justify-between text-xs bg-slate-950/70 px-2.5 py-2 rounded-lg border border-slate-800/80">
+                          <div className="flex items-center gap-2 text-slate-400 mr-2 flex-1 min-w-0">
                             <User className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                            <span className="text-[11px] text-slate-500">Usuário:</span>
-                            <span className="text-slate-200 font-mono text-xs truncate">
+                            <span className="text-[11px] text-slate-500 shrink-0">Usuário:</span>
+                            <span className="text-slate-200 font-mono text-xs leading-normal py-0.5 break-all">
                               {sys.username || '—'}
                             </span>
                           </div>
@@ -254,11 +254,11 @@ export function LivePreview({ consultant, systems }: LivePreviewProps) {
                         </div>
 
                         {/* Linha de Senha */}
-                        <div className="flex items-center justify-between text-xs bg-slate-950/70 p-2 rounded-lg border border-slate-800/80">
-                          <div className="flex items-center gap-1.5 text-slate-400 truncate mr-2">
+                        <div className="flex items-center justify-between text-xs bg-slate-950/70 px-2.5 py-2 rounded-lg border border-slate-800/80">
+                          <div className="flex items-center gap-2 text-slate-400 mr-2 flex-1 min-w-0">
                             <Lock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                            <span className="text-[11px] text-slate-500">Senha:</span>
-                            <span className="text-slate-200 font-mono text-xs tracking-wider truncate">
+                            <span className="text-[11px] text-slate-500 shrink-0">Senha:</span>
+                            <span className="text-slate-200 font-mono text-xs leading-normal py-0.5 tracking-wider break-all">
                               {displayedPassword || '—'}
                             </span>
                           </div>
